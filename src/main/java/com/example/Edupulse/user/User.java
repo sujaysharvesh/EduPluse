@@ -3,6 +3,7 @@ package com.example.Edupulse.user;
 
 import com.example.Edupulse.common.BaseEntity;
 import com.example.Edupulse.common.enums.UserRole;
+import com.example.Edupulse.school.School;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,8 +18,9 @@ import java.util.UUID;
 @AllArgsConstructor
 public class User extends BaseEntity {
 
-    @Column(name = "school_id")
-    private UUID schoolId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "school_id", nullable = false)
+    private School school;
 
     @Column(nullable = false, length = 100)
     private String username;
@@ -37,7 +39,7 @@ public class User extends BaseEntity {
     private String profilePic;
 
     @Column(length = 20)
-    private Long phone;
+    private String phone;
 
     @Column(columnDefinition = "TEXT")
     private String address;

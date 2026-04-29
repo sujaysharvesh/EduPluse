@@ -16,4 +16,6 @@ public class JwtUser {
     private String email;
 
     private String role;
+
+    private String schoolId;
 }

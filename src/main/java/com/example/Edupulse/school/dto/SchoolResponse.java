@@ -1,5 +1,6 @@
 package com.example.Edupulse.school.dto;
 
+
 import com.example.Edupulse.common.enums.SchoolStatus;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +11,7 @@ import java.time.Instant;
 @Builder
 @Setter
 @Getter
-public class CreateSchoolRequest {
+public class SchoolResponse {
 
     private String schoolName;
 
@@ -26,10 +27,8 @@ public class CreateSchoolRequest {
 
     private String email;
 
-    private Boolean isHeadOffice;
-
     private SchoolStatus status;
 
-    private Instant createdAt;
+
 
 }

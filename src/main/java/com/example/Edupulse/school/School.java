@@ -1,5 +1,6 @@
 package com.example.Edupulse.school;
 
+import com.example.Edupulse.common.BaseEntity;
 import com.example.Edupulse.common.enums.SchoolStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,12 +13,9 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Table(name = "schools")
-public class School {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+public class School extends BaseEntity {
 
     @Column(name = "branch_name", nullable = false, length = 100)
     private String schoolName;
@@ -37,13 +35,7 @@ public class School {
     @Column(length = 20)
     private String phone;
 
-    @Column(length = 100)
-    private String email;
-
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private SchoolStatus status = SchoolStatus.ACTIVE;
-
-    @Column(name = "created_at")
-    private Instant createdAt;
 }

@@ -40,7 +40,7 @@ public class JwtUtils {
     }
 
     // Generate Access Token
-    public String generateAccessToken(UUID userId, String email, String username, UserRole role) {
+    public String generateAccessToken(UUID userId, String email, String username, UserRole role, String schoolId) {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + accessTokenExpiryMs);
 
@@ -50,6 +50,7 @@ public class JwtUtils {
         claims.put("username", username);
         claims.put("email", email);
         claims.put("role", role.name());
+        claims.put("schoolId", schoolId);
 
         return Jwts.builder()
                 .claims(claims)
@@ -61,7 +62,7 @@ public class JwtUtils {
     }
 
     // Generate Refresh Token
-    public String generateRefreshToken(UUID userId, String email, String username, UserRole role) {
+    public String generateRefreshToken(UUID userId, String email, String username, UserRole role,String schoolId) {
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + refreshTokenExpiryMs);
 
@@ -71,6 +72,8 @@ public class JwtUtils {
         claims.put("username", username);
         claims.put("email", email);
         claims.put("role", role.name());
+        claims.put("schoolId", schoolId);
+
 
         return Jwts.builder()
                 .claims(claims)
@@ -86,6 +89,7 @@ public class JwtUtils {
         String username = extractUsername(oldRefreshToken);
         String email = extractEmail(oldRefreshToken);
         String role = extractRole(oldRefreshToken);
+        String schoolId = extractSchoolId(oldRefreshToken);
 
         if (userId == null || username == null || email == null || role == null) {
             return null;
@@ -99,7 +103,8 @@ public class JwtUtils {
                 UUID.fromString(userId),
                 email,
                 username,
-                userRole
+                userRole,
+                schoolId
         );
     }
 
@@ -109,6 +114,7 @@ public class JwtUtils {
         String username = extractUsername(oldRefreshToken);
         String email = extractEmail(oldRefreshToken);
         String role = extractRole(oldRefreshToken);
+        String schoolId = extractSchoolId(oldRefreshToken);
 
         if (userId == null || username == null || email == null || role == null) {
             log.warn("Missing user details in refresh token");
@@ -123,7 +129,8 @@ public class JwtUtils {
                 UUID.fromString(userId),
                 email,
                 username,
-                userRole
+                userRole,
+                schoolId
         );
 
     }
@@ -152,6 +159,10 @@ public class JwtUtils {
 
     public String extractTokenType(String token) {
         return extractClaim(token, claims -> claims.get("type", String.class));
+    }
+
+    public String extractSchoolId(String token) {
+        return extractClaim(token, claims -> claims.get("schoolId", String.class));
     }
 
     public String extractUserId(String token) {
