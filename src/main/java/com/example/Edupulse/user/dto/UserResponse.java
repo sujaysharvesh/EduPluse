@@ -20,7 +20,7 @@ public class UserResponse {
 
     private String profilePic;
 
-    private String phone;
+    private Long phone;
 
     private String address;
 

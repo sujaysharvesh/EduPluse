@@ -9,6 +9,8 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Getter
 @Setter
 public class CreateUserRequest {
@@ -28,9 +30,12 @@ public class CreateUserRequest {
     @NotNull(message = "Role is required")
     private UserRole role;
 
+    @NotNull(message = "SchoolId is required")
+    private UUID schoolId;
+
     private String profilePic;
 
-    private String phone;
+    private Long phone;
 
     private String address;
 

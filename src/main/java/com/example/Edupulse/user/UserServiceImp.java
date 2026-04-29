@@ -1,0 +1,84 @@
+package com.example.Edupulse.user;
+
+
+import com.example.Edupulse.exception.BadRequestException;
+import com.example.Edupulse.exception.ResourceNotFoundException;
+import com.example.Edupulse.security.CookieBuilder;
+import com.example.Edupulse.user.dto.CreateUserRequest;
+import com.example.Edupulse.user.dto.LoginRequest;
+import com.example.Edupulse.utils.JwtUtils;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+
+@Service
+public class UserServiceImp implements UserService {
+
+    private final UserRepository userRepo;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtils jwtUtils;
+    private final CookieBuilder cookieBuilder;
+
+    @Autowired
+    public UserServiceImp(UserRepository userRepo,
+                          PasswordEncoder passwordEncoder,
+                          JwtUtils jwtUtils,
+                          CookieBuilder cookieBuilder) {
+        this.userRepo = userRepo;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtils = jwtUtils;
+        this.cookieBuilder = cookieBuilder;
+    }
+
+    @Override
+    public String registerUser(CreateUserRequest request) {
+            if (userRepo.existsByEmail(request.getEmail())) {
+                throw new BadRequestException("User already exists with this email");
+            }
+
+            User user = User.builder()
+                    .email(request.getEmail())
+                    .username(request.getUsername())
+                    .passwordHash(passwordEncoder.encode(request.getPassword()))
+                    .role(request.getRole())
+                    .schoolId(request.getSchoolId())
+                    .phone(request.getPhone())
+                    .profilePic(request.getProfilePic())
+                    .address(request.getAddress())
+                    .build();
+
+            User savedUser = userRepo.save(user);
+            return "done";
+    }
+
+    @Override
+    public void login(LoginRequest loginRequest, HttpServletResponse response) {
+        User user = userRepo.findByEmail(loginRequest.getEmail()).orElseThrow(
+                () -> new ResourceNotFoundException("User Does Not Exists")
+        );
+
+        if (!passwordEncoder.matches(
+                loginRequest.getPassword(),
+                user.getPasswordHash()
+        )) {
+            throw new BadRequestException("Invalid email or password");
+        }
+
+        String accessToken = jwtUtils.generateAccessToken(user.getId(),
+                user.getEmail(), user.getUsername(), user.getRole());
+
+        String refreshToken = jwtUtils.generateRefreshToken(user.getId(),
+                user.getEmail(), user.getUsername(), user.getRole());
+
+        cookieBuilder.setAccessTokenCookie(response, accessToken);
+        cookieBuilder.setRefreshTokenCookie(response, refreshToken);
+
+    }
+
+    @Override
+    public void logout(HttpServletResponse response) {
+        cookieBuilder.clearCookies(response);
+    }
+}

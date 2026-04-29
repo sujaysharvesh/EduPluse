@@ -4,13 +4,23 @@ package com.example.Edupulse.user;
 import com.example.Edupulse.common.BaseEntity;
 import com.example.Edupulse.common.enums.UserRole;
 import jakarta.persistence.*;
+import lombok.*;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
+@Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class User extends BaseEntity {
 
+    @Column(name = "school_id")
+    private UUID schoolId;
 
-    @Column(nullable = false, unique = false, length = 100)
+    @Column(nullable = false, length = 100)
     private String username;
 
     @Column(nullable = false, unique = true, length = 100)
@@ -27,10 +37,8 @@ public class User extends BaseEntity {
     private String profilePic;
 
     @Column(length = 20)
-    private Integer phone;
+    private Long phone;
 
     @Column(columnDefinition = "TEXT")
     private String address;
-
-
 }
