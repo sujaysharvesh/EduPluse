@@ -37,5 +37,5 @@ public class School extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private SchoolStatus status = SchoolStatus.ACTIVE;
+    private SchoolStatus status;
 }

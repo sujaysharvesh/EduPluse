@@ -37,7 +37,7 @@ public class SchoolController {
                 .body(ApiResponse.success(school));
     }
 
-    @PostMapping("/create")
+    @PostMapping
     public ResponseEntity<ApiResponse<String>> createSchool(
             @Valid @RequestBody SchoolRequest request) {
         schoolService.createSchool(request);

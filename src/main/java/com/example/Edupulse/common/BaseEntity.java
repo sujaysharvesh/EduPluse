@@ -2,10 +2,8 @@ package com.example.Edupulse.common;
 
 
 import jakarta.persistence.*;
-import jdk.jfr.Name;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Collate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 

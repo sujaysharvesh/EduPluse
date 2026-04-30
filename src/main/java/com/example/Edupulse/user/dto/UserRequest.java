@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class CreateUserRequest {
+public class UserRequest {
 
     @NotBlank(message = "Username is required")
     @Size(max = 100)

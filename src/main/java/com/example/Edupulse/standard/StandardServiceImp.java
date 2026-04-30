@@ -26,9 +26,18 @@ public class StandardServiceImp implements StandardService {
 
     @Override
     public List<StandardResponse> getAllBySchool(String schoolId) {
+
+        UUID schoolUUID = UUID.fromString(schoolId);
+
+        if (!schoolRepo.existsById(schoolUUID)) {
+            throw new ResourceNotFoundException("School not found with id: " + schoolId);
+        }
         verifySchoolAccess(schoolId);
-        return standardRepo.findAllBySchoolId(UUID.fromString(schoolId))
-                .stream().map(this::mapToResponse).toList();
+
+        return standardRepo.findAllBySchoolId(schoolUUID)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     @Override

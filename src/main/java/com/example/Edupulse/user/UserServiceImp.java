@@ -6,13 +6,15 @@ import com.example.Edupulse.exception.ResourceNotFoundException;
 import com.example.Edupulse.school.School;
 import com.example.Edupulse.school.SchoolRepo;
 import com.example.Edupulse.security.CookieBuilder;
-import com.example.Edupulse.user.dto.CreateUserRequest;
+import com.example.Edupulse.user.dto.UserRequest;
 import com.example.Edupulse.user.dto.LoginRequest;
 import com.example.Edupulse.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 
 @Service
@@ -38,7 +40,7 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public String registerUser(CreateUserRequest request) {
+    public String registerUser(UserRequest request) {
 
         School school = schoolRepo.findById(request.getSchoolId())
                 .orElseThrow(() ->
@@ -67,6 +69,20 @@ public class UserServiceImp implements UserService {
         userRepo.save(user);
 
         return "User registered successfully";
+    }
+
+    @Override
+    public void updateUser(UUID userId, UserRequest request) {
+
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new BadRequestException("User not found"));
+
+        if (request.getUsername() != null)   user.setUsername(request.getUsername());
+        if (request.getProfilePic() != null) user.setProfilePic(request.getProfilePic());
+        if (request.getPhone() != null)      user.setPhone(request.getPhone());
+        if (request.getAddress() != null)    user.setAddress(request.getAddress());
+
+        userRepo.save(user);
     }
 
     @Override

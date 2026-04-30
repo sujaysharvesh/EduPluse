@@ -1,6 +1,7 @@
 package com.example.Edupulse.school;
 
 
+import com.example.Edupulse.common.enums.SchoolStatus;
 import com.example.Edupulse.exception.AccessDeniedException;
 import com.example.Edupulse.exception.BadRequestException;
 import com.example.Edupulse.exception.ResourceNotFoundException;
@@ -61,6 +62,7 @@ public class SchoolServiceImp implements SchoolService{
                 .state(request.getState())
                 .pincode(request.getPincode())
                 .phone(request.getPhone())
+                .status(SchoolStatus.ACTIVE)
                 .build();
 
         schoolRepo.save(school);
