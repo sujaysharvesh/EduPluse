@@ -1,8 +1,7 @@
-package com.example.Edupulse.user.dto;
+package com.example.Edupulse.user.dto.request;
 
 
 import lombok.*;
-import org.springframework.scheduling.annotation.Scheduled;
 
 @Getter
 @Setter

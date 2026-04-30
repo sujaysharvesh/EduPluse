@@ -1,4 +1,4 @@
-package com.example.Edupulse.user.dto;
+package com.example.Edupulse.user.dto.request;
 
 
 import com.example.Edupulse.common.enums.UserRole;

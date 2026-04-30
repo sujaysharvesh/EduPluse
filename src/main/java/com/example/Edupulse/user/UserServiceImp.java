@@ -5,12 +5,23 @@ import com.example.Edupulse.exception.BadRequestException;
 import com.example.Edupulse.exception.ResourceNotFoundException;
 import com.example.Edupulse.school.School;
 import com.example.Edupulse.school.SchoolRepo;
+import com.example.Edupulse.section.SectionRepo;
 import com.example.Edupulse.security.CookieBuilder;
-import com.example.Edupulse.user.dto.UserRequest;
-import com.example.Edupulse.user.dto.LoginRequest;
+import com.example.Edupulse.standard.StandardRepo;
+import com.example.Edupulse.user.dto.request.CreateUserRequest;
+import com.example.Edupulse.user.dto.request.UserRequest;
+import com.example.Edupulse.user.dto.request.LoginRequest;
+import com.example.Edupulse.user.parent.Parent;
+import com.example.Edupulse.user.parent.ParentRepo;
+import com.example.Edupulse.user.student.Student;
+import com.example.Edupulse.user.student.StudentRepo;
+import com.example.Edupulse.user.teacher.Teacher;
+import com.example.Edupulse.user.teacher.TeacherRepo;
 import com.example.Edupulse.utils.JwtUtils;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,57 +29,98 @@ import java.util.UUID;
 
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class UserServiceImp implements UserService {
 
     private final UserRepository userRepo;
+    private final ParentRepo parentRepo;
+    private final TeacherRepo teacherRepo;
+    private final StudentRepo studentRepo;
+    private final StandardRepo standardRepo;
+    private final SectionRepo sectionRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
     private final CookieBuilder cookieBuilder;
     private final SchoolRepo schoolRepo;
-
-    @Autowired
-    public UserServiceImp(UserRepository userRepo,
-                          PasswordEncoder passwordEncoder,
-                          JwtUtils jwtUtils,
-                          CookieBuilder cookieBuilder,
-                          SchoolRepo schoolRepo) {
-        this.userRepo = userRepo;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtils = jwtUtils;
-        this.cookieBuilder = cookieBuilder;
-        this.schoolRepo = schoolRepo;
-    }
+    private final UserResponseFactory userResponseFactory;
 
     @Override
-    public String registerUser(UserRequest request) {
-
-        School school = schoolRepo.findById(request.getSchoolId())
-                .orElseThrow(() ->
-                        new BadRequestException("School not found")
-                );
-
+    @Transactional
+    public void registerUser(CreateUserRequest request) {
         if (userRepo.existsByEmail(request.getEmail())) {
-            throw new BadRequestException(
-                    "User already exists with this email"
-            );
+            throw new BadRequestException("Email already exists");
         }
 
+        School school = schoolRepo.findById(request.getSchoolId())
+                .orElseThrow(() -> new ResourceNotFoundException("School not found"));
+
+        // Step 1 — save base user
         User user = User.builder()
-                .email(request.getEmail())
-                .username(request.getUsername())
-                .passwordHash(
-                        passwordEncoder.encode(request.getPassword())
-                )
-                .role(request.getRole())
                 .school(school)
+                .username(request.getUsername())
+                .email(request.getEmail())
+                .passwordHash(passwordEncoder.encode(request.getPassword()))
+                .role(request.getRole())
                 .phone(request.getPhone())
-                .profilePic(request.getProfilePic())
                 .address(request.getAddress())
+                .profilePic(request.getProfilePic())
                 .build();
 
         userRepo.save(user);
 
-        return "User registered successfully";
+        // Step 2 — save role-specific profile
+        switch (request.getRole()) {
+            case STUDENT -> {
+                Student student = Student.builder()
+                        .user(user)
+                        .rollNumber(request.getRollNumber())
+                        .admissionDate(request.getAdmissionDate())
+                        .build();
+
+                // optionally link standard/section if provided
+                if (request.getStandardId() != null) {
+                    student.setStandard(
+                            standardRepo.findById(request.getStandardId())
+                                    .orElseThrow(() -> new ResourceNotFoundException("Standard not found"))
+                    );
+                }
+                if (request.getSectionId() != null) {
+                    student.setSection(
+                            sectionRepo.findById(request.getSectionId())
+                                    .orElseThrow(() -> new ResourceNotFoundException("Section not found"))
+                    );
+                }
+                if (request.getParentId() != null) {
+                    User parentUser = userRepo.findById(request.getParentId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Parent not found"));
+                    Parent parent = parentRepo.findById(parentUser.getId())
+                            .orElseThrow(() -> new ResourceNotFoundException("Parent profile not found"));
+                    student.setParent(parent);
+                }
+
+                studentRepo.save(student);
+            }
+
+            case TEACHER -> teacherRepo.save(
+                    Teacher.builder()
+                            .user(user)
+                            .qualification(request.getQualification())
+                            .subject(request.getSubject())
+                            .joiningDate(request.getJoiningDate())
+                            .build()
+            );
+
+            case PARENT -> parentRepo.save(
+                    Parent.builder()
+                            .user(user)
+                            .occupation(request.getOccupation())
+                            .alternatePhone(request.getAlternatePhone())
+                            .build()
+            );
+
+            default -> log.debug("No profile table needed for role: {}", request.getRole());
+        }
     }
 
     @Override
@@ -112,5 +164,15 @@ public class UserServiceImp implements UserService {
     @Override
     public void logout(HttpServletResponse response) {
         cookieBuilder.clearCookies(response);
+    }
+
+    @Override
+    public Object getProfile(String userId, String role) {
+        UUID id = UUID.fromString(userId);
+
+        User user = userRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        return userResponseFactory.build(user);
     }
 }

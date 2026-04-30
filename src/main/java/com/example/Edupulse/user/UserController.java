@@ -2,13 +2,13 @@ package com.example.Edupulse.user;
 
 
 import com.example.Edupulse.common.ApiResponse;
-import com.example.Edupulse.user.dto.UserRequest;
-import com.example.Edupulse.user.dto.LoginRequest;
+import com.example.Edupulse.user.dto.request.CreateUserRequest;
+import com.example.Edupulse.user.dto.request.UserRequest;
+import com.example.Edupulse.user.dto.request.LoginRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -27,20 +27,21 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<Object> currentUser() {
+    public ResponseEntity<ApiResponse<Object>> currentUser() {
+        JwtUser jwtUser = (JwtUser) SecurityContextHolder
+                .getContext().getAuthentication().getPrincipal();
 
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
+        Object profile = userService.getProfile(jwtUser.getId(), jwtUser.getRole());
 
-        return ResponseEntity.ok(authentication.getPrincipal());
+        return ResponseEntity.ok(ApiResponse.success(profile));
     }
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<String>> register(
-            @Valid @RequestBody UserRequest createUserRequest
+            @Valid @RequestBody CreateUserRequest createUserRequest
     ) {
 
-        String response = userService.registerUser(createUserRequest);
+        userService.registerUser(createUserRequest);
 
         return ResponseEntity
                 .status(HttpStatus.OK)
