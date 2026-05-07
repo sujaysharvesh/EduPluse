@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Repository
-public interface ExamMarkRepository extends JpaRepository<ExamMark, UUID> {
+public interface ExamMarkRepo extends JpaRepository<ExamMark, UUID> {
 
     // All marks for a student
     List<ExamMark> findByStudentIdOrderByExamStartDateAsc(UUID studentId);

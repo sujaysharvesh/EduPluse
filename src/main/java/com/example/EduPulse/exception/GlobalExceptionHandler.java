@@ -109,7 +109,37 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ExamTypeException.DuplicateName.class)
-    public ResponseEntity<ApiResponse<Object>> handleNotFound(ExamTypeException.DuplicateName ex) {
+    public ResponseEntity<ApiResponse<Object>> handleDuplicateName(ExamTypeException.DuplicateName ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(ExamMarkException.NotFound.class)
+    public ResponseEntity<ApiResponse<Object>> handleNotFound(ExamMarkException.NotFound ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(ExamMarkException.AlreadyEntered.class)
+    public ResponseEntity<ApiResponse<Object>> handleAlreadyEntered(ExamMarkException.AlreadyEntered ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(ExamMarkException.ExceedsMaxMark.class)
+    public ResponseEntity<ApiResponse<Object>> handleExceedsMaxMark(ExamMarkException.ExceedsMaxMark ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(ExamException.NotFound.class)
+    public ResponseEntity<ApiResponse<Object>> handleNotFound(ExamException.NotFound ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(ExamException.InvalidDateRange.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidDateRange(ExamException.InvalidDateRange ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(ExamException.DuplicateExam.class)
+    public ResponseEntity<ApiResponse<Object>> handleDuplicateExam(ExamException.DuplicateExam ex) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
