@@ -88,6 +88,32 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    @ExceptionHandler(AttendanceException.NotFound.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidAttendance(AttendanceException.NotFound ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(AttendanceException.AlreadyMarked.class)
+    public ResponseEntity<ApiResponse<Object>> handleAlreadyMarked(AttendanceException.AlreadyMarked ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(AttendanceException.FutureDateNotAllowed.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidAttendance(AttendanceException.FutureDateNotAllowed ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(ExamTypeException.NotFound.class)
+    public ResponseEntity<ApiResponse<Object>> handleNotFound(ExamTypeException.NotFound ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(ExamTypeException.DuplicateName.class)
+    public ResponseEntity<ApiResponse<Object>> handleNotFound(ExamTypeException.DuplicateName ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+
     private ResponseEntity<ApiResponse<Object>> build(HttpStatus status, String message) {
         return ResponseEntity.status(status)
                 .body(ApiResponse.error(message));
