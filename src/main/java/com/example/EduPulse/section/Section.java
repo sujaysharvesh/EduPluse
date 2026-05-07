@@ -11,7 +11,12 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "sections")
+@Table(
+        name = "sections",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {"standard_id", "name", "academic_year"}
+        )
+)
 public class Section extends BaseEntity {
 
 
@@ -21,5 +26,8 @@ public class Section extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "standard_id", nullable = false)
     private Standard standard;
+
+    @Column(name = "academic_year")
+    private String academicYear;
 
 }

@@ -71,4 +71,26 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ex.getMessage()));
     }
 
+    @ExceptionHandler(TimeTableException.NotFound.class)
+    public ResponseEntity<ApiResponse<Object>> handleNotFound(
+            TimeTableException.NotFound ex) {
+
+        return build(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(TimeTableException.SlotConflict.class)
+    public ResponseEntity<ApiResponse<Object>> handleSlotConflict(TimeTableException.SlotConflict ex) {
+        return build(HttpStatus.CONFLICT, ex.getMessage());
+    }
+
+    @ExceptionHandler(TimeTableException.InvalidTime.class)
+    public ResponseEntity<ApiResponse<Object>> handleInvalidTime(TimeTableException.InvalidTime ex) {
+        return build(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    private ResponseEntity<ApiResponse<Object>> build(HttpStatus status, String message) {
+        return ResponseEntity.status(status)
+                .body(ApiResponse.error(message));
+    }
+
 }
